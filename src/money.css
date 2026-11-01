@@ -175,10 +175,25 @@
   clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 .return-wheel {
+  transform: rotate(var(--wheel-angle, 0deg));
   width: 100%;
   height: 100%;
   position: relative;
   transition: transform 3.2s cubic-bezier(0.12, 0.72, 0.12, 1);
+}
+.wheel-label {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: rotate(calc(0deg - var(--wheel-angle, 0deg)));
+  transition: transform 3.2s cubic-bezier(0.12, 0.72, 0.12, 1);
+}
+#wheel-sound {
+  width: max-content;
+  margin: 0 0 16px auto;
+}
+#wheel-sound .sound-panel {
+  bottom: auto;
+  top: calc(100% + 8px);
 }
 .return-wheel svg {
   display: block;

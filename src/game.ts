@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { keyBit } from "./input";
+import { audio } from "./audio";
 import {
   createState,
   update,
@@ -47,6 +48,12 @@ export function mountGame(
   const taps = new Map<number, number>();
   const setKey = (e: KeyboardEvent, on: boolean) => {
     if (!hasStarted) return;
+    if (
+      on &&
+      e.target instanceof HTMLElement &&
+      e.target.closest("input, .sound-panel")
+    )
+      return;
     if (paused && e.target instanceof HTMLElement && e.target.closest("button"))
       return;
     const bit = keyBit(e);
@@ -57,6 +64,7 @@ export function mountGame(
     }
     if (on && e.key === "Escape" && !e.repeat) {
       paused = !paused;
+      audio.gameplay(!paused);
       onChange({ ...simulation, paused });
     }
   };
@@ -65,6 +73,7 @@ export function mountGame(
     blur = () => {
       if (!hasStarted) return;
       paused = true;
+      audio.gameplay(false);
       keys.clear();
       taps.clear();
       mask = 0;
@@ -73,7 +82,12 @@ export function mountGame(
   window.addEventListener("keydown", down);
   window.addEventListener("keyup", up);
   window.addEventListener("blur", blur);
-  let count = 0;
+  const visibility = () => {
+    if (document.hidden) blur();
+  };
+  document.addEventListener("visibilitychange", visibility);
+  let count = 0,
+    lastAlert = -240;
   class Vault extends Phaser.Scene {
     mouse!: Phaser.GameObjects.Sprite;
     crumbs: any[] = [];
@@ -197,10 +211,31 @@ export function mountGame(
         if (simulation.tick < until) input |= bit;
         else taps.delete(bit);
       }
+      const previous = {
+        collected: simulation.collected,
+        hits: simulation.hits,
+        dash: simulation.dashUntil,
+        speed: simulation.speedUntil,
+        shield: simulation.shieldUntil,
+        chasing: simulation.bots.some((b) => b.active && b.mode === "chase"),
+      };
       while (accumulator >= 1000 / 60 && simulation.phase === "playing") {
         update(simulation, input);
         encodeInput(actions, input);
         accumulator -= 1000 / 60;
+      }
+      if (simulation.collected > previous.collected) audio.effect("crumb");
+      if (simulation.hits > previous.hits) audio.effect("caught");
+      if (simulation.speedUntil > previous.speed) audio.effect("boost");
+      if (simulation.shieldUntil > previous.shield) audio.effect("shield");
+      if (simulation.dashUntil > previous.dash) audio.effect("dash");
+      if (
+        !previous.chasing &&
+        simulation.bots.some((b) => b.active && b.mode === "chase") &&
+        simulation.tick - lastAlert > 240
+      ) {
+        audio.effect("alert");
+        lastAlert = simulation.tick;
       }
       this.mouse
         .setPosition(simulation.x, simulation.y - 25)
@@ -251,6 +286,8 @@ export function mountGame(
       this.whale.setVisible(simulation.tick < simulation.whaleUntil);
       if (++count % 3 === 0) onChange({ ...simulation, paused });
       if (simulation.phase !== "playing") {
+        audio.gameplay(false);
+        audio.effect(simulation.phase === "escaped" ? "win" : "lose");
         onChange({ ...simulation, paused });
         onFinish({ state: simulation, actions });
       }
@@ -272,7 +309,9 @@ export function mountGame(
   return {
     pause(value?: boolean) {
       paused = value ?? !paused;
+      const firstStart = !hasStarted;
       if (!paused) hasStarted = true;
+      audio.gameplay(!paused, firstStart);
       keys.clear();
       taps.clear();
       mask = 0;
@@ -286,6 +325,8 @@ export function mountGame(
       } else mask &= ~bit;
     },
     destroy() {
+      audio.gameplay(false);
+      document.removeEventListener("visibilitychange", visibility);
       window.removeEventListener("resize", resize);
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);

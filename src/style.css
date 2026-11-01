@@ -996,6 +996,98 @@ footer > div {
   letter-spacing: 2px;
   white-space: nowrap;
 }
+.sound-controls {
+  position: relative;
+  z-index: 15;
+}
+.sound-controls .sound-toggle {
+  min-height: 40px;
+  padding: 8px 13px;
+  font:
+    13px DM,
+    Arial,
+    sans-serif;
+  white-space: nowrap;
+}
+.sound-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: 240px;
+  padding: 18px;
+  border-radius: 8px;
+  background: #eee8d9;
+  color: #121416;
+  box-shadow: 0 5px 24px #0007;
+  text-align: left;
+}
+.sound-panel label {
+  display: block;
+  font:
+    14px DM,
+    Arial,
+    sans-serif;
+  margin-bottom: 14px;
+}
+.sound-panel input {
+  display: block;
+  width: 100%;
+  margin: 10px 0 0;
+  accent-color: #9a7100;
+}
+.sound-panel button {
+  width: 100%;
+  font-size: 13px;
+  min-height: 40px;
+  padding: 8px;
+}
+.sound-panel a {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font:
+    11px DM,
+    Arial,
+    sans-serif;
+  text-decoration: underline;
+}
+.game-bottom {
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .game-bottom {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 40px auto;
+    gap: 8px;
+  }
+  .game-bottom .keyboard-hint {
+    display: none;
+  }
+  .game-bottom .touch-pad {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    align-self: end;
+  }
+  #sound-host {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .game-bottom .sound-panel {
+    right: 0;
+    left: auto;
+    width: 220px;
+  }
+  .game-bottom .abilities {
+    grid-column: 2;
+    grid-row: 2;
+    gap: 6px;
+  }
+  .game-bottom #ability-state {
+    max-width: 110px;
+  }
+}
 @media (max-width: 600px) {
   .lives {
     font-size: 16px;

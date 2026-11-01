@@ -1,11 +1,14 @@
 import "./style.css";
 import "./money.css";
+import { mountAudioControls } from "./audio";
 import { entryScreen, wheelScreen, stopMoney, bankScreen } from "./money";
 import { api, getWallet, short } from "./api";
 import type { NetworkConfig, PaidEntry } from "./types";
 import type { mountGame, GameState, RunResult } from "./game";
+import { shareIntent } from "../shared/share.mjs";
 import { VERSION, MAPS, createState } from "../shared/simulation.mjs";
 const root = document.querySelector<HTMLDivElement>("#root")!;
+let clearAudioUI = () => {};
 let currentPaid: PaidEntry | null = null;
 let config: NetworkConfig | null = null;
 let runtime: ReturnType<typeof mountGame> | null = null;
@@ -43,7 +46,7 @@ function header() {
   return `<header>${brand}<nav><a href="/#crew">The crew</a><a href="/#leaderboard">Leaderboard</a><a href="/docs/">How to play</a></nav></header>`;
 }
 function footer() {
-  return `<footer>${brand}<div><a href="/docs/">Game rules</a><span>Built for BNB Chain</span><a id="social-link" hidden></a></div></footer>`;
+  return `<footer>${brand}<div><a href="/docs/">Game rules</a><span>Built for BNB Chain</span><a id="social-link" hidden target="_blank" rel="noopener noreferrer"></a><a href="https://github.com/rhysik/crumbs-bnb" target="_blank" rel="noopener noreferrer">Open source on GitHub</a></div></footer>`;
 }
 function refreshNetwork() {
   document
@@ -62,7 +65,7 @@ function refreshNetwork() {
     if (a) {
       a.hidden = false;
       a.href = config.xUrl;
-      a.textContent = "X";
+      a.textContent = "@playcrumbs_bnb";
     }
   }
 }
@@ -72,6 +75,7 @@ function escape(text: unknown) {
   return div.innerHTML;
 }
 function chooseMode() {
+  clearAudioUI();
   runtime?.destroy();
   runtime = null;
   stopMoney();
@@ -130,7 +134,9 @@ async function loadRanks() {
   }
 }
 function shell() {
-  root.innerHTML = `<div class="game-page"><div class="game-top">${brand}<div class="hud"><span><img src="/game/crumb.png" alt=""/><b id="carry">00</b></span><strong id="clock">00:45</strong><span id="lives" class="lives" aria-label="3 catches remaining">♥♥♥</span></div><button class="yellow pause" id="pause" aria-label="Pause game">Ⅱ</button></div><main class="game-shell"><div id="playfield"></div><div class="game-bottom"><span class="keyboard-hint">WASD / arrows to move · Space to dash</span><div class="touch-pad" aria-label="Movement controls"><button data-bit="1" aria-label="Move up">↑</button><button data-bit="4" aria-label="Move left">←</button><button data-bit="2" aria-label="Move down">↓</button><button data-bit="8" aria-label="Move right">→</button></div><div class="abilities"><span id="ability-state"></span><button class="yellow" data-bit="16" id="dash">Dash</button></div></div><div id="overlay" hidden></div></main></div>`;
+  clearAudioUI();
+  root.innerHTML = `<div class="game-page"><div class="game-top">${brand}<div class="hud"><span><img src="/game/crumb.png" alt=""/><b id="carry">00</b></span><strong id="clock">00:45</strong><span id="lives" class="lives" aria-label="3 catches remaining">♥♥♥</span></div><button class="yellow pause" id="pause" aria-label="Pause game">Ⅱ</button></div><main class="game-shell"><div id="playfield"></div><div class="game-bottom"><span class="keyboard-hint">WASD / arrows to move · Space to dash</span><div class="touch-pad" aria-label="Movement controls"><button data-bit="1" aria-label="Move up">↑</button><button data-bit="4" aria-label="Move left">←</button><button data-bit="2" aria-label="Move down">↓</button><button data-bit="8" aria-label="Move right">→</button></div><div id="sound-host"></div><div class="abilities"><span id="ability-state"></span><button class="yellow" data-bit="16" id="dash">Dash</button></div></div><div id="overlay" hidden></div></main></div>`;
+  clearAudioUI = mountAudioControls(document.querySelector("#sound-host")!);
   document
     .querySelector("#pause")!
     .addEventListener("click", () => runtime?.pause());
@@ -158,6 +164,7 @@ function shell() {
 }
 async function start(paid: PaidEntry | null = null) {
   currentPaid = paid;
+  clearAudioUI();
   runtime?.destroy();
   runtime = null;
   if (location.pathname != "/app/") history.pushState({}, "", "/app/");
@@ -280,35 +287,40 @@ async function finish(result: RunResult) {
   }
   const overlay = document.querySelector<HTMLDivElement>("#overlay")!;
   overlay.hidden = false;
-  overlay.innerHTML = `<div class="run-modal result"><img src="/game/${won ? "original" : "guard"}.png" alt=""/><h2>${won ? "All crumbs collected." : "The vault got you."}</h2><div class="result-score">${s.score}<span>points</span></div><p>${won ? s.collected + " crumbs collected. " + s.carry + " kept after catches. " + s.hits + " close calls." : s.hits >= 3 ? "Three catches. The guards got your bag. Dodge behind crates and use Dash to break away." : "Time ran out. Collect every crumb before the clock reaches zero."}</p><p id="verify-status">Checking your run…</p><div class="result-actions">${currentPaid ? '<button class="yellow" id="open-wheel">Draw my BNB return</button>' : ""}<button class="${currentPaid ? "" : "yellow"}" id="again">One more run</button>${currentPaid ? "" : '<button id="paid-next">Play for BNB</button>'}${won ? '<button id="save" disabled>Save record (wallet + gas)</button>' : ""}<button id="share">Copy my result</button><a href="/">Back to the crew</a></div><p class="small" id="claim-status"></p></div>`;
+  overlay.innerHTML = `<div class="run-modal result"><img src="/game/${won ? "original" : "guard"}.png" alt=""/><h2>${won ? "All crumbs collected." : "The vault got you."}</h2><div class="result-score">${s.score}<span>points</span></div><p>${won ? s.collected + " crumbs collected. " + s.carry + " kept after catches. " + s.hits + " close calls." : s.hits >= 3 ? "Three catches. The guards got your bag. Dodge behind crates and use Dash to break away." : "Time ran out. Collect every crumb before the clock reaches zero."}</p><p id="verify-status">Checking your run…</p><div class="result-actions">${currentPaid ? '<button class="yellow" id="open-wheel">Draw my BNB return</button>' : ""}<button class="${currentPaid ? "" : "yellow"}" id="again">One more run</button>${currentPaid ? "" : '<button id="paid-next">Play for BNB</button>'}${won ? '<button id="save" disabled>Save record (wallet + gas)</button>' : ""}${won ? '<button id="share" disabled>Share on X</button><a id="download-card" hidden download="crumbs-result.png">Download victory card</a>' : '<button id="copy-result">Copy my result</button>'}<a href="/">Back to the crew</a></div><p class="small" id="claim-status"></p></div>`;
   document
     .querySelector("#again")!
     .addEventListener("click", currentPaid ? chooseMode : () => start());
   document.querySelector("#paid-next")?.addEventListener("click", chooseMode);
   document.querySelector("#open-wheel")?.addEventListener("click", () => {
+    clearAudioUI();
     runtime?.destroy();
     runtime = null;
     wheelScreen(root, config, currentPaid.id, lobby);
   });
-  document.querySelector("#share")!.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(
-        won
-          ? `I escaped the whale vault with ${s.score} points in Crumbs. Whales have bags. We take crumbs.\n${location.origin}`
-          : `The guards got me in Crumbs. Next run, bigger bag.\n${location.origin}`,
-      );
-      document.querySelector("#share")!.textContent = "Copied";
-    } catch {
-      document.querySelector("#claim-status")!.textContent =
-        "Copy is unavailable in this browser.";
-    }
-  });
+  document
+    .querySelector("#copy-result")
+    ?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(
+          won
+            ? `I escaped the whale vault with ${s.score} points in Crumbs. Whales have bags. We take crumbs.\n${location.origin}`
+            : `The guards got me in Crumbs. Next run, bigger bag.\n${location.origin}`,
+        );
+        document.querySelector("#copy-result")!.textContent = "Copied";
+      } catch {
+        document.querySelector("#claim-status")!.textContent =
+          "Copy is unavailable in this browser.";
+      }
+    });
+  const finishedId = session.id,
+    verifyStatus = document.querySelector("#verify-status")!;
   try {
     await api("finish", {
-      id: session.id,
+      id: finishedId,
       actions: result.actions,
     });
-    if (!document.querySelector("#verify-status")) return;
+    if (!verifyStatus.isConnected) return;
     document.querySelector("#verify-status")!.textContent = won
       ? "Run verified."
       : "Run checked. The next bag is yours.";
@@ -317,8 +329,30 @@ async function finish(result: RunResult) {
       save.disabled = !config?.market;
       save.onclick = saveOnchain;
     }
+    if (won) {
+      try {
+        const shared = await api("share", { id: finishedId });
+        if (!verifyStatus.isConnected) return;
+        const button = document.querySelector<HTMLButtonElement>("#share")!;
+        button.disabled = false;
+        button.onclick = () =>
+          window.open(
+            shareIntent(location.origin, finishedId, shared.score),
+            "_blank",
+            "noopener,noreferrer",
+          );
+        const download =
+          document.querySelector<HTMLAnchorElement>("#download-card")!;
+        download.href = shared.image;
+        download.hidden = false;
+      } catch {
+        if (verifyStatus.isConnected)
+          document.querySelector("#claim-status")!.textContent =
+            "Sharing is temporarily unavailable. Your run is still verified.";
+      }
+    }
   } catch (e) {
-    if (!document.querySelector("#verify-status")) return;
+    if (!verifyStatus.isConnected) return;
     document.querySelector("#verify-status")!.textContent =
       "Run verification failed: " + (e as Error).message;
   }
@@ -375,7 +409,7 @@ async function saveOnchain() {
 }
 function docs() {
   title("How to play");
-  root.innerHTML = `${header()}<main class="docs"><h1>A little greed.<br/>A quick getaway.</h1><h2>The run</h2><p>You have 45 seconds. Move with WASD or arrow keys, or use the on-screen controls on mobile. Space or Dash gives a short burst with a cooldown. Collect all 36 crumbs to finish immediately. You do not need to return to the burrow.</p><h2>The score</h2><p>Every crumb still in your bag at completion is worth ten points. Whole seconds left on the clock are bonus points. Getting caught by a guard loses half your carried crumbs, rounded down. Three catches end the run. Guards follow you when they see you, search your last known position when you hide behind crates, then return to patrol. Another guard joins after fifteen seconds. A short recovery window prevents repeated hits at once. The final crumb ends the run immediately. If the clock reaches zero before the map is cleared, the run scores zero.</p><h2>The tricks</h2><p>The pale-blue pickup gives a temporary Low Gas shield. Green bonus crumbs give five seconds of movement at 245 units per second, compared with the normal 165. There are three green pickups per map. They do not count toward the 36 gold crumbs. Whale Alert warns you about a short dangerous sweep through the middle of the vault. These are arcade mechanics and do not alter the paid draw odds. Five distinct arenas, each with its own floor and obstacle layout, changing crumbs and guards that chase around crates make each route different. This frustrates fixed click recordings but does not guarantee bot prevention.</p><h2>The crew</h2><p>Crumbs is available from the start. Collect twelve crumbs in one run to unlock Scout. Clear an entire map to unlock Veteran. Characters are cosmetic and do not change scores or movement. Your local best and character choice are saved in this browser.</p><h2>BNB Chain records</h2><p>Practice requires no wallet. Paid play requires a wallet, an entry transaction and network gas. After an escape, the server replays the recorded controls against the original seed and checks the score. Successful clears qualify for the leaderboard. Faster completion and fewer catches mean a higher score. To save a record, connect your wallet, sign the run-linking message and confirm one onchain transaction. You pay network gas. Game crumbs are points. The separate paid draw returns BNB according to fixed odds, regardless of your arcade score.</p><p>The public season board includes records confirmed onchain. The score contract trusts the configured score-signing service. Valid replays prove compliance with game rules, not that a human played without automation. The optional paid draw is a separate chance-based product. Game points and community tokens give no right to additional payments.</p><div id="network-docs">Loading network…</div><h2>Paid draw rules</h2><p>Each paid entry has an independent 40% chance of a gross return above its stake. The fixed bands are: 60% chance of 80.123–95.877% returned; 35% chance of 103.123–107.877%; 4.5% chance of 110.123–119.877%; 0.5% chance of 175.123–224.877%. A second domain-separated value derived from the same verified VRF word determines the exact multiplier uniformly inside the selected band. These amounts include the original entry. Average theoretical return is 95.9% before the player's network fees. A higher gross return can still be a net loss after gas. No profit is guaranteed.</p><p>The stake is denominated in BNB, not a fixed dollar amount. Testnet uses valueless tBNB. Each accepted entry reserves its maximum payout plus an oracle budget. The owner can withdraw only funds not reserved for open plays and player credits. Oracle fees are paid from the project bank, with a per-request cap of 2% of the entry.</p><p>After the game, request the draw, wait for Chainlink VRF, settle and claim your return. Anyone may request or settle an existing paid draw, but only its player can withdraw the credited BNB. The arcade result does not change or cancel your paid return. A request cannot be rerolled or cancelled. If VRF is delayed, funds remain reserved until fulfillment. If no request was made within 24 hours, the player can recover the full entry. A service outage cannot guarantee a callback time.</p><p>Keep your play ID from the entry transaction. Use Recover a paid run after closing the page. Settlement and withdrawals remain accessible when new entries are paused. Paid play is for adults aged 18 or older and is available only where lawful. Do not use it where chance-based wagering is prohibited. No tokens are required to play.</p><h2>Access and limits</h2><p>The contract owner can rotate the score signer, pause new records and start the next season. These powers apply only to the score-record contract. The separate game bank holds the paid entries and payout reserve. Its owner can pause new paid entries and withdraw unreserved bank funds, but cannot change the fixed odds, entry amount, payouts or VRF wrapper. Historical records remain readable. The contract is unaudited. Crumbs is independent of Binance and BNB Chain's operators.</p><h2>Project token</h2><p>A community token, if separately launched, does not represent game points, a claim on vault funds, an investment return or a right to prizes.</p><a class="yellow" href="/app/">Play a run</a></main>${footer()}`;
+  root.innerHTML = `${header()}<main class="docs"><h1>A little greed.<br/>A quick getaway.</h1><h2>The run</h2><p>You have 45 seconds. Move with WASD or arrow keys, or use the on-screen controls on mobile. Space or Dash gives a short burst with a cooldown. Collect all 36 crumbs to finish immediately. You do not need to return to the burrow.</p><h2>The score</h2><p>Every crumb still in your bag at completion is worth ten points. Whole seconds left on the clock are bonus points. Getting caught by a guard loses half your carried crumbs, rounded down. Three catches end the run. Guards follow you when they see you, search your last known position when you hide behind crates, then return to patrol. Another guard joins after fifteen seconds. A short recovery window prevents repeated hits at once. The final crumb ends the run immediately. If the clock reaches zero before the map is cleared, the run scores zero.</p><h2>The tricks</h2><p>The pale-blue pickup gives a temporary Low Gas shield. Green bonus crumbs give five seconds of movement at 245 units per second, compared with the normal 165. There are three green pickups per map. They do not count toward the 36 gold crumbs. Whale Alert warns you about a short dangerous sweep through the middle of the vault. These are arcade mechanics and do not alter the paid draw odds. Five distinct arenas, each with its own floor and obstacle layout, changing crumbs and guards that chase around crates make each route different. This frustrates fixed click recordings but does not guarantee bot prevention.</p><h2>The crew</h2><p>Crumbs is available from the start. Collect twelve crumbs in one run to unlock Scout. Clear an entire map to unlock Veteran. Characters are cosmetic and do not change scores or movement. Your local best and character choice are saved in this browser.</p><h2>BNB Chain records</h2><p>Practice requires no wallet. Paid play requires a wallet, an entry transaction and network gas. After an escape, the server replays the recorded controls against the original seed and checks the score. Successful clears qualify for the leaderboard. Faster completion and fewer catches mean a higher score. To save a record, connect your wallet, sign the run-linking message and confirm one onchain transaction. You pay network gas. Game crumbs are points. The separate paid draw returns BNB according to fixed odds, regardless of your arcade score.</p><p>The public season board includes records confirmed onchain. The score contract trusts the configured score-signing service. Valid replays prove compliance with game rules, not that a human played without automation. The optional paid draw is a separate chance-based product. Game points and community tokens give no right to additional payments.</p><div id="network-docs">Loading network…</div><h2>Paid draw rules</h2><p>Each paid entry has an independent 40% chance of a gross return above its stake. The fixed bands are: 60% chance of 80.123–95.877% returned; 35% chance of 103.123–107.877%; 4.5% chance of 110.123–119.877%; 0.5% chance of 175.123–224.877%. A second domain-separated value derived from the same verified VRF word determines the exact multiplier uniformly inside the selected band. These amounts include the original entry. Average theoretical return is 95.9% before the player's network fees. A higher gross return can still be a net loss after gas. No profit is guaranteed.</p><p>The stake is denominated in BNB, not a fixed dollar amount. Each accepted entry reserves its maximum payout plus an oracle budget. The owner can withdraw only funds not reserved for open plays and player credits. Oracle fees are paid from the project bank, with a per-request cap of 2% of the entry.</p><p>After the game, request the draw, wait for Chainlink VRF, settle and claim your return. Anyone may request or settle an existing paid draw, but only its player can withdraw the credited BNB. The arcade result does not change or cancel your paid return. A request cannot be rerolled or cancelled. If VRF is delayed, funds remain reserved until fulfillment. If no request was made within 24 hours, the player can recover the full entry. A service outage cannot guarantee a callback time.</p><p>Keep your play ID from the entry transaction. Use Recover a paid run after closing the page. Settlement and withdrawals remain accessible when new entries are paused. Paid play is for adults aged 18 or older and is available only where lawful. Do not use it where chance-based wagering is prohibited. No tokens are required to play.</p><h2>Access and limits</h2><p>The contract owner can rotate the score signer, pause new records and start the next season. These powers apply only to the score-record contract. The separate game bank holds the paid entries and payout reserve. Its owner can pause new paid entries and withdraw unreserved bank funds, but cannot change the fixed odds, entry amount, payouts or VRF wrapper. Historical records remain readable. The contract is unaudited. Crumbs is independent of Binance and BNB Chain's operators.</p><h2 id="audio-credits">Soundtrack</h2><p>“Sneaky Snitch” by Kevin MacLeod (<a href="https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100772" target="_blank" rel="noopener noreferrer">incompetech.com</a>), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">Creative Commons Attribution 4.0</a>. Transcoded to 128 kbps for web playback, looped and played quietly. Game sound effects are original synthesized cues. Use Sound during a run to adjust music and effects or mute both.</p><h2>Project token</h2><p>A community token, if separately launched, does not represent game points, a claim on vault funds, an investment return or a right to prizes.</p><a class="yellow" href="/app/">Play a run</a></main>${footer()}`;
   refreshDocs();
 }
 function refreshDocs() {
@@ -405,6 +439,7 @@ async function init() {
 }
 window.addEventListener("popstate", () => {
   stopMoney();
+  clearAudioUI();
   runtime?.destroy();
   runtime = null;
   init();

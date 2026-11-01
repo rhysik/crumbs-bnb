@@ -1,6 +1,7 @@
 import type { NetworkConfig, PaidEntry } from "./types";
 import type { Contract, JsonRpcSigner } from "ethers";
 type WalletConnection = { signer: JsonRpcSigner; game: Contract };
+import { audio, mountAudioControls } from "./audio";
 import { getWallet } from "./api";
 import { TIERS } from "../shared/economy.mjs";
 import { prepareDraw } from "../shared/draw.mjs";
@@ -188,9 +189,15 @@ export async function wheelScreen(
 ) {
   stopMoney();
   let active = true;
-  stopped = () => (active = false);
+  let clearAudioUI = () => {};
+  stopped = () => {
+    active = false;
+    audio.stopRoll();
+    clearAudioUI();
+  };
   const entry = (Number(config.game.entryPrice) / 1e18).toFixed(4);
-  root.innerHTML = `<div class="wheel-page"><a class="wordmark" href="/">crumbs</a><section class="wheel-panel"><h1>One last twist.<img class="wheel-mouse" src="/mouse-v1.png" alt=""/></h1><p class="wheel-entry">Entry already paid: <strong>${entry} ${unit(config)}</strong></p><div class="wheel-body"><div class="wheel-wrap"><i class="wheel-pointer"></i><div class="return-wheel" id="return-wheel">${wheelSvg()}</div><div class="wheel-core"><strong>${unit(config)}</strong><span>return</span></div></div><div class="wheel-legend" aria-label="Payout colours and chances">${wheelLegend()}</div></div><div class="wheel-result"><div class="return-amount" id="return-amount">Your draw is waiting.</div><p class="small" id="wheel-status" role="status">One independent draw for this paid entry.</p></div><button class="yellow" id="wheel-action">Connect to draw</button><button id="wheel-back">Back to the crew</button><p class="wheel-odds">40% higher gross return · 60% partial return<br/>Returns include your entry. Gas is separate.</p><a class="play-id" href="${safe(config.explorerUrl)}/address/${config.game.address}">Play ID: ${safe(playId)}</a></section></div>`;
+  root.innerHTML = `<div class="wheel-page"><a class="wordmark" href="/">crumbs</a><section class="wheel-panel"><div id="wheel-sound"></div><h1>One last twist.<img class="wheel-mouse" src="/mouse-v1.png" alt=""/></h1><p class="wheel-entry">Entry already paid: <strong>${entry} ${unit(config)}</strong></p><div class="wheel-body"><div class="wheel-wrap"><i class="wheel-pointer"></i><div class="return-wheel" id="return-wheel">${wheelSvg()}</div><div class="wheel-core"><strong>${unit(config)}</strong><span>return</span></div></div><div class="wheel-legend" aria-label="Payout colours and chances">${wheelLegend()}</div></div><div class="wheel-result"><div class="return-amount" id="return-amount">Your draw is waiting.</div><p class="small" id="wheel-status" role="status">One independent draw for this paid entry.</p></div><button class="yellow" id="wheel-action">Connect to draw</button><button id="wheel-back">Back to the crew</button><p class="wheel-odds">40% higher gross return · 60% partial return<br/>Returns include your entry. Gas is separate.</p><a class="play-id" href="${safe(config.explorerUrl)}/address/${config.game.address}">Play ID: ${safe(playId)}</a></section></div>`;
+  clearAudioUI = mountAudioControls(document.querySelector("#wheel-sound")!);
   document.querySelector("#wheel-back")!.addEventListener("click", () => {
     stopMoney();
     back();
@@ -281,17 +288,19 @@ export async function wheelScreen(
                   ),
             wheel = document.querySelector<HTMLElement>("#return-wheel")!;
           if (bucket !== null)
-            wheel.style.transform =
-              "rotate(" +
-              (1800 -
-                (bucket! < 100000
-                  ? 108
-                  : bucket! < 110123
-                    ? 279
-                    : bucket! < 175123
-                      ? 350.1
-                      : 359.1)) +
-              "deg)";
+            wheel.style.setProperty(
+              "--wheel-angle",
+              String(
+                1800 -
+                  (bucket! < 100000
+                    ? 108
+                    : bucket! < 110123
+                      ? 279
+                      : bucket! < 175123
+                        ? 350.1
+                        : 359.1),
+              ) + "deg",
+            );
           const delay = matchMedia("(prefers-reduced-motion: reduce)").matches
             ? 0
             : 3200;
@@ -300,8 +309,11 @@ export async function wheelScreen(
               ? "Entry refunded."
               : "Revealing your confirmed return…";
           action.disabled = true;
+          if (bucket !== null && delay) audio.roll(delay);
           await new Promise((r) => setTimeout(r, delay));
+          audio.stopRoll();
           if (!active) return;
+          audio.effect(bucket !== null && bucket > 100000 ? "plus" : "return");
         }
         amount.textContent = formatEther(play.payout) + " " + unit(config);
         status.textContent =
@@ -343,7 +355,10 @@ export async function wheelScreen(
       };
     }
   }
-  action.onclick = refresh;
+  action.onclick = () => {
+    audio.unlock();
+    void refresh();
+  };
 }
 
 export async function bankScreen(root: HTMLElement, config: NetworkConfig) {
