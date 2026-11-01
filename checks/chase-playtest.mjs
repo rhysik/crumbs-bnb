@@ -26,12 +26,20 @@ for (const mobile of [false, true]) {
     hasTouch: mobile,
   });
   page.on("pageerror", (e) => errors.push(e.message));
+  let sessionSeed = 49;
   await page.route("**/api/session", async (r) => {
-    assert.equal(r.request().postDataJSON().engine, VERSION);
-    const layout=r.request().postDataJSON().preferredLayout;let seed=49;while(createState(seed).layout!==layout)seed++;await r.fulfill({json:{id:"local-playtest",seed,engine:VERSION,season:1}});
+    const request = r.request().postDataJSON();
+    assert.equal(request.engine, VERSION);
+    assert.ok(Number.isInteger(request.preferredLayout));
+    assert.ok(request.preferredLayout >= 0 && request.preferredLayout < 5);
+    while (createState(sessionSeed).layout !== request.preferredLayout)
+      sessionSeed++;
+    await r.fulfill({
+      json: { id: "local-playtest", seed: sessionSeed, engine: VERSION, season: 1 },
+    });
   });
   await page.route("**/api/finish", async (r) => {
-    const result = replay(49, r.request().postDataJSON().actions);
+    const result = replay(sessionSeed, r.request().postDataJSON().actions);
     await r.fulfill({
       json: {
         verified: true,
@@ -43,7 +51,7 @@ for (const mobile of [false, true]) {
   await page.goto("http://127.0.0.1:4181/app/");
   await page.getByRole("button", { name: "Try for free" }).click();
   await page.locator("canvas").waitFor();
-await page.getByRole("button", {name:"Start free run",exact:true}).click();
+  await page.getByRole("button", { name: "Start free run", exact: true }).click();
   await page.waitForTimeout(900);
   assert.equal(await page.locator("#lives").innerText(), "♥♥♥");
   await page.locator("#pause").click();
