@@ -130,7 +130,7 @@ export function workerConfig(d, hosting) {
       binding: "ASSETS",
       html_handling: "auto-trailing-slash",
       not_found_handling: "404-page",
-      run_worker_first: ["/api/*"],
+      run_worker_first: ["/api/*", "/run/*"],
     },
     triggers: { crons: ["* * * * *"] },
     d1_databases: [
