@@ -15,7 +15,8 @@ const game = new Contract(
   read("artifacts/contracts/CrumbsGame.sol/CrumbsGame.json").abi,
   provider,
 );
-const player = (await game.plays(playId)).player;
+const currentPlay = await game.plays(playId);
+const player = currentPlay.player;
 const expectedData = game.interface.encodeFunctionData("draw", [playId]);
 const requests = [],
   errors = [];
@@ -108,13 +109,10 @@ try {
       path: "deployments/wheel-" + name + ".png",
       fullPage: true,
     });
-    if (name === "desktop") {
-      await page
-        .getByRole("button", { name: "Connect to draw", exact: true })
-        .click();
-      await page
-        .getByRole("button", { name: "Draw my return", exact: true })
-        .waitFor();
+    await page
+      .getByRole("button", { name: "Connect to draw", exact: true })
+      .click();
+    if (currentPlay.state === 1n && name === "desktop") {
       await page
         .getByRole("button", { name: "Draw my return", exact: true })
         .click();
@@ -124,6 +122,36 @@ try {
         })
         .waitFor({ timeout: 45000 });
       assert.equal(requests.length, 1);
+    } else if (currentPlay.state >= 4n) {
+      await page
+        .locator("#return-amount")
+        .filter({ hasText: /[0-9].*BNB/ })
+        .waitFor({ timeout: 45000 });
+      const angles = await page.locator(".wheel-label").evaluateAll((labels) =>
+        labels.map((label) => {
+          const m = label.getScreenCTM();
+          return (Math.atan2(m.b, m.a) * 180) / Math.PI;
+        }),
+      );
+      assert(
+        angles.every((a) => Math.abs(a) < 0.01),
+        "sector labels remain horizontal after the actual result reveal",
+      );
+      assert.equal(
+        await page.locator(".return-wheel path").nth(2).getAttribute("fill"),
+        "#9ed9ef",
+      );
+      assert.equal(
+        await page
+          .locator(".wheel-tier i")
+          .nth(2)
+          .evaluate((e) => getComputedStyle(e).backgroundColor),
+        "rgb(158, 217, 239)",
+      );
+      await page.screenshot({
+        path: "deployments/wheel-settled-" + name + ".png",
+        fullPage: true,
+      });
     }
     await context.close();
   }
@@ -133,14 +161,23 @@ try {
     origin,
     playId,
     chainId: 56,
-    requestedGas: String(BigInt(requests[0].gas)),
-    gasPrice: String(BigInt(requests[0].gasPrice)),
+    requestedGas: requests[0] ? String(BigInt(requests[0].gas)) : null,
+    gasPrice: requests[0] ? String(BigInt(requests[0].gasPrice)) : null,
+    actualPlayState: Number(currentPlay.state),
     transactionsBroadcast: 0,
     checks: [
       "same paid play recovery",
-      "real-price draw simulation",
-      "padded gas supplied to wallet",
-      "wallet decline preserves draw",
+      ...(currentPlay.state === 1n
+        ? [
+            "real-price draw simulation",
+            "padded gas supplied to wallet",
+            "wallet decline preserves draw",
+          ]
+        : [
+            "settled mainnet result",
+            "horizontal sector labels after rotation",
+            "light-blue 4.5% sector and matching legend",
+          ]),
       "four labelled colours, probabilities and ranges",
       "desktop and two mobile widths without overlap",
     ],
