@@ -11,6 +11,8 @@ import { createState, replay, VERSION, MAPS } from "../shared/simulation.mjs";
 import { replay as replayV2 } from "../shared/simulation-v2.mjs";
 import { replay as replayV3 } from "../shared/simulation-v3.mjs";
 import { TYPES, domain, challengeMessage } from "../shared/claims.mjs";
+import { shareRecord } from "../shared/share.mjs";
+import { shareResponse } from "./share.mjs";
 const json = (value, status = 200) =>
   Response.json(value, { status, headers: { "Cache-Control": "no-store" } });
 const fail = (message, status = 400) => {
@@ -167,8 +169,11 @@ export default {
   },
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (!url.pathname.startsWith("/api/")) return env.ASSETS.fetch(request);
+    if (!url.pathname.startsWith("/api/") && !url.pathname.startsWith("/run/"))
+      return env.ASSETS.fetch(request);
     try {
+      if (url.pathname.startsWith("/run/"))
+        return await shareResponse(request, env);
       if (request.method === "POST") {
         const origin = request.headers.get("Origin");
         if (origin && origin !== url.origin) fail("Origin mismatch.", 403);
@@ -296,6 +301,32 @@ export default {
           score: result.score,
           escaped: result.phase === "escaped",
           crumbs: result.carry,
+        });
+      }
+      if (endpoint === "share" && request.method === "POST") {
+        const b = await body(request),
+          session = await row(env, b.id);
+        let result;
+        try {
+          result = shareRecord(session);
+        } catch (error) {
+          fail(error.message);
+        }
+        await env.DB.prepare(
+          "INSERT OR IGNORE INTO shared_runs(id,score,crumbs,steps,created) VALUES(?,?,?,?,?)",
+        )
+          .bind(
+            result.id,
+            result.score,
+            result.crumbs,
+            result.steps,
+            Date.now(),
+          )
+          .run();
+        return json({
+          url: url.origin + "/run/" + result.id + "/",
+          image: url.origin + "/run/" + result.id + "/card.png",
+          score: result.score,
         });
       }
       if (endpoint === "challenge" && request.method === "POST") {
