@@ -148,7 +148,7 @@
 .wheel-panel {
   background: var(--paper);
   color: var(--dark);
-  width: min(600px, 100%);
+  width: min(920px, 100%);
   padding: 35px 35px 25px;
   text-align: center;
   margin: 25px auto 0;
@@ -177,43 +177,13 @@
 .return-wheel {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  border: 7px solid #121416;
-  background: conic-gradient(
-    #f0b90b 0deg 71deg,
-    #eee8d9 71deg 72deg,
-    #292d2e 72deg 143deg,
-    #eee8d9 143deg 144deg,
-    #292d2e 144deg 215deg,
-    #eee8d9 215deg 216deg,
-    #292d2e 216deg 287deg,
-    #eee8d9 287deg 288deg,
-    #292d2e 288deg 359deg,
-    #eee8d9 359deg
-  );
   position: relative;
   transition: transform 3.2s cubic-bezier(0.12, 0.72, 0.12, 1);
 }
-.return-wheel:after {
-  content: "";
-  position: absolute;
-  inset: calc(50% - 16px);
-  border-radius: 50%;
-  background: var(--paper);
-  border: 6px solid #121416;
-}
-.return-wheel span {
-  position: absolute;
-  left: calc(50% - 25px);
-  top: calc(50% - 16px);
-  width: 50px;
-  height: 32px;
-  font: 23px Lilita;
-  color: var(--paper);
-  transform: rotate(calc(var(--sector) * 72deg + 36deg)) translateY(-84px);
-}
-.return-wheel span:first-child {
-  color: #121416;
+.return-wheel svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .return-amount {
   font: 33px Lilita;
@@ -281,9 +251,6 @@
     height: 235px;
     margin: 25px auto;
   }
-  .return-wheel span {
-    transform: rotate(calc(var(--sector) * 72deg + 36deg)) translateY(-73px);
-  }
   .return-amount {
     font-size: 27px;
   }
@@ -340,26 +307,145 @@
 .payout-bands b {
   font-weight: 700;
 }
-.return-wheel {
-  background: conic-gradient(
-    #292d2e 0deg 216deg,
-    #f0b90b 216deg 342deg,
-    #c3b46a 342deg 358.2deg,
-    #fff8d7 358.2deg 360deg
-  );
+.entry-panel .odds span {
+  max-width: 120px;
+}
+
+.wheel-body {
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  align-items: center;
+  gap: 24px;
+  margin: 22px 0;
+  text-align: left;
+}
+.wheel-body .wheel-wrap {
+  width: 330px;
+  height: 330px;
+  margin: 0;
+}
+.wheel-entry {
+  color: #625b4b;
+  font-size: 14px;
+  margin: 8px 0 0;
 }
 .wheel-core {
   position: absolute;
-  left: calc(50% - 28px);
-  top: calc(50% - 28px);
-  z-index: 2;
-  width: 56px;
-  height: 56px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   border-radius: 50%;
-  background: var(--paper);
-  color: var(--dark);
-  font: 20px/56px Lilita;
+  width: 124px;
+  height: 124px;
+  background: var(--dark);
+  color: var(--paper);
 }
-.entry-panel .odds span {
-  max-width: 120px;
+.wheel-core strong {
+  font: 30px Lilita;
+}
+.wheel-core span {
+  font: 11px DM;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-top: 3px;
+}
+.wheel-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.wheel-tier {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+.wheel-tier > i {
+  width: 12px;
+  height: 38px;
+  background: var(--tier-color);
+  border: 1px solid #12141640;
+  border-radius: 3px;
+}
+.wheel-tier strong {
+  display: block;
+  font-size: 14px;
+}
+.wheel-tier span {
+  display: block;
+  font-size: 11px;
+  color: #5f594c;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.wheel-tier b {
+  text-align: right;
+  font: 24px Lilita;
+}
+.wheel-tier small {
+  display: block;
+  font: 10px DM;
+  color: #5f594c;
+}
+.wheel-panel h1 {
+  text-align: left;
+  padding-right: 80px;
+}
+.wheel-panel .wheel-entry {
+  text-align: left;
+}
+.wheel-mouse {
+  right: 0;
+  top: -10px;
+}
+.wheel-result {
+  padding: 12px 0 0;
+}
+.wheel-result .small {
+  min-height: 40px;
+}
+@media (max-width: 740px) {
+  .wheel-body {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-top: 20px;
+  }
+  .wheel-body .wheel-wrap {
+    width: min(260px, 100%);
+    height: auto;
+    aspect-ratio: 1;
+    margin: auto;
+  }
+  .wheel-legend {
+    gap: 13px;
+  }
+  .wheel-tier span {
+    font-size: 11px;
+  }
+  .wheel-panel h1 {
+    font-size: 36px;
+    padding-right: 62px;
+  }
+  .wheel-mouse {
+    width: 48px;
+    height: 65px;
+    top: -5px;
+  }
+  .wheel-entry {
+    font-size: 12px;
+  }
+  .wheel-core {
+    width: 96px;
+    height: 96px;
+  }
+  .wheel-core strong {
+    font-size: 24px;
+  }
+  .wheel-panel {
+    margin-top: 18px;
+  }
 }

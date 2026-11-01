@@ -3,6 +3,8 @@ import type { Contract, JsonRpcSigner } from "ethers";
 type WalletConnection = { signer: JsonRpcSigner; game: Contract };
 import { getWallet } from "./api";
 import { TIERS } from "../shared/economy.mjs";
+import { prepareDraw } from "../shared/draw.mjs";
+import { wheelSvg, wheelLegend } from "../shared/wheel.mjs";
 const oddsTable = () =>
   '<div class="payout-bands">' +
   TIERS.map(
@@ -46,6 +48,8 @@ async function connection(config: NetworkConfig) {
   return { signer, game: new Contract(config.game.address, ABI, signer) };
 }
 function error(e: any) {
+  if (e.receipt?.status === 0)
+    return "Transaction reverted. Your paid run is saved. Refresh its status before retrying.";
   return e.code === "ACTION_REJECTED"
     ? "Wallet request declined. No new action was confirmed."
     : e.shortMessage ||
@@ -185,7 +189,8 @@ export async function wheelScreen(
   stopMoney();
   let active = true;
   stopped = () => (active = false);
-  root.innerHTML = `<div class="wheel-page"><a class="wordmark" href="/">crumbs</a><section class="wheel-panel"><h1>One last twist.<img class="wheel-mouse" src="/mouse-v1.png" alt=""/></h1><div class="wheel-wrap"><i class="wheel-pointer"></i><div class="return-wheel" id="return-wheel"></div><strong class="wheel-core">BNB</strong></div><div class="return-amount" id="return-amount">Your draw is waiting.</div><p class="small" id="wheel-status" role="status">One independent draw for this paid entry.</p><button class="yellow" id="wheel-action">Connect to draw</button><button id="wheel-back">Back to the crew</button><p class="wheel-odds">40% higher gross return · 60% partial return<br/>Returns include your entry. Gas is separate.</p><a class="play-id" href="${safe(config.explorerUrl)}/address/${config.game.address}">Play ID: ${safe(playId)}</a></section></div>`;
+  const entry = (Number(config.game.entryPrice) / 1e18).toFixed(4);
+  root.innerHTML = `<div class="wheel-page"><a class="wordmark" href="/">crumbs</a><section class="wheel-panel"><h1>One last twist.<img class="wheel-mouse" src="/mouse-v1.png" alt=""/></h1><p class="wheel-entry">Entry already paid: <strong>${entry} ${unit(config)}</strong></p><div class="wheel-body"><div class="wheel-wrap"><i class="wheel-pointer"></i><div class="return-wheel" id="return-wheel">${wheelSvg()}</div><div class="wheel-core"><strong>${unit(config)}</strong><span>return</span></div></div><div class="wheel-legend" aria-label="Payout colours and chances">${wheelLegend()}</div></div><div class="wheel-result"><div class="return-amount" id="return-amount">Your draw is waiting.</div><p class="small" id="wheel-status" role="status">One independent draw for this paid entry.</p></div><button class="yellow" id="wheel-action">Connect to draw</button><button id="wheel-back">Back to the crew</button><p class="wheel-odds">40% higher gross return · 60% partial return<br/>Returns include your entry. Gas is separate.</p><a class="play-id" href="${safe(config.explorerUrl)}/address/${config.game.address}">Play ID: ${safe(playId)}</a></section></div>`;
   document.querySelector("#wheel-back")!.addEventListener("click", () => {
     stopMoney();
     back();
@@ -219,6 +224,16 @@ export async function wheelScreen(
         action.onclick = async () => {
           action.disabled = true;
           try {
+            let drawOverrides;
+            if (!expired) {
+              status.textContent = "Checking the saved draw and network gas…";
+              drawOverrides = await prepareDraw(
+                game,
+                signer.provider,
+                address,
+                playId,
+              );
+            }
             status.textContent =
               "Confirm " +
               (expired ? "the refund" : "the draw request") +
@@ -226,7 +241,7 @@ export async function wheelScreen(
             await (
               await (expired
                 ? game.refundUnrequested(playId)
-                : game.draw(playId, { gasLimit: 600000 }))
+                : game.draw(playId, drawOverrides))
             ).wait();
             await refresh();
           } catch (e) {

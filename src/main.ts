@@ -393,8 +393,11 @@ async function init() {
     bankScreen(root, config);
   else if (location.pathname.startsWith("/docs")) docs();
   else if (location.pathname.startsWith("/app")) {
-    if (new URLSearchParams(location.search).get("mode") === "practice")
-      start();
+    const params = new URLSearchParams(location.search);
+    const play = params.get("play");
+    if (config?.game && /^0x[\da-fA-F]{64}$/.test(play || ""))
+      wheelScreen(root, config, play!, chooseMode);
+    else if (params.get("mode") === "practice") start();
     else chooseMode();
   } else lobby();
   refreshNetwork();
