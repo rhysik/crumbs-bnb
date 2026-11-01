@@ -1,21 +1,26 @@
 {
-  "stage": "testnet",
-  "chainId": 97,
-  "networkName": "BNB Testnet",
-  "rpcUrl": "https://bsc-testnet-dataseed.bnbchain.org",
-  "explorerUrl": "https://testnet.bscscan.com",
-  "market": "0xc645cBED7927c4fcddE1D731fe0827c975654030",
-  "scoreSigner": "0x90f0c40c9B991573c4324F6F6a800236A31B8946",
-  "owner": "0x3DE0b8463A06214A36426602c2F8eDDB71bF1afa",
-  "block": 140180976,
-  "deploymentTransaction": "0x30a4949a39756e57dbf4e8057903b37f0bcdce04c6d5bf92c3f28c64145deff1",
+  "stage": "mainnet",
+  "chainId": 56,
+  "networkName": "BNB Chain mainnet",
+  "rpcUrl": "https://bsc-dataseed.bnbchain.org",
+  "explorerUrl": "https://bscscan.com",
+  "owner": "0xF8c331dB8C8937Ceb1e891196B9278e802b32c85",
+  "block": 131077158,
+  "deploymentTransaction": "0x430276b7a0c953b1a6f7ba550cd6acded8e836d038575ddff6910de1171ebf6c",
+  "market": "0x9C215A50EE8f71A18589b5C827BcA38866Cc48a2",
+  "scoreSigner": "0x53981270f16E383A0E9134bF025ff9dD8F563e4C",
   "game": {
-    "address": "0xd885dF5a870583e3aa60fb0B9C9FC4ff9C721040",
-    "chainId": 97,
+    "stage": "mainnet",
+    "chainId": 56,
+    "networkName": "BNB Chain mainnet",
+    "rpcUrl": "https://bsc-dataseed.bnbchain.org",
+    "explorerUrl": "https://bscscan.com",
+    "owner": "0xF8c331dB8C8937Ceb1e891196B9278e802b32c85",
+    "block": 131077169,
+    "deploymentTransaction": "0x381e0813de7426257ecb43627529122a807ff2553d3a2172f9908e0f44344215",
+    "address": "0xBf063Fe035F76A9bE55f1BB0C499418a8ba9ea20",
     "wrapper": "0x471506e6ADED0b9811D05B8cAc8Db25eE839Ac94",
-    "entryPrice": "2800000000000000",
-    "owner": "0x3DE0b8463A06214A36426602c2F8eDDB71bF1afa",
-    "block": 140194932,
-    "deploymentTransaction": "0xa85f4af9f85bdba30eff74b0053237fc1c3da4b8b58859bbd74e86025b46cc3d"
-  }
+    "entryPrice": "2800000000000000"
+  },
+  "xUrl": "https://x.com/playcrumbs_bnb"
 }
