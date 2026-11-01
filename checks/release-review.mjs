@@ -47,7 +47,7 @@ write("deployments/release-proof.json", {
   stage: publication.stage,
   game: activeGame.address,
   contractTests: 16,
-  simulationAndEconomyTests: 22,
+  simulationAndEconomyTests: 28,
   browserLifecycle: { passed: browser.passed, chainId: browser.chainId, game: browser.game },
   mainnetPaidLifecycleVerified: false,
   batCheck: true,
