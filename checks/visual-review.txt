@@ -1,0 +1,5 @@
+Visual review, 2026-11-01
+Compared lobby-v1 and game-v1 concepts with fully loaded browser screenshots. Checked palette, readable type, main action hierarchy, sprite scale, scene bounds, mobile controls, image decoding and lack of text/illustration overlaps.
+The paid wheel changed from the original five equal sectors because the user changed the distribution to four weighted payout bands. Its visual shares now match the final odds. The centre label stays upright.
+Fixed canvas double centering, premature screenshot capture, weak entry-copy contrast and tiny mobile playfield. Mobile now uses a closer follow camera.
+Post artwork reviewed at export size. Product video re-rendered with the new draw scene. Public onchain tests and wallet UI proof are recorded separately. This review is not an external security audit.
