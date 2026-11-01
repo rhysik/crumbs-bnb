@@ -1,0 +1,8 @@
+Sneaky Snitch
+Kevin MacLeod (incompetech.com)
+Licensed under Creative Commons Attribution 4.0 International.
+https://creativecommons.org/licenses/by/4.0/
+Source: https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100772
+The original MP3 was transcoded to 128 kbps for web delivery. In-game playback uses reduced volume and looping.
+
+The short game sound effects are original synthesized Web Audio cues created for Crumbs.
