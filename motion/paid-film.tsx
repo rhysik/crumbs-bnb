@@ -429,7 +429,7 @@ function Draw() {
       label: "Small plus",
     },
     {
-      color: "#b9c9c0",
+      color: "#9ed9ef",
       chance: "4.5%",
       range: "110.123–119.877%",
       label: "Bigger plus",
@@ -527,7 +527,7 @@ function Draw() {
             borderRadius: "50%",
             border: "14px solid " + paper,
             background:
-              "conic-gradient(#666e70 0deg 216deg,#f0b90b 216deg 342deg,#b9c9c0 342deg 358.2deg,#eee8d9 358.2deg)",
+              "conic-gradient(#666e70 0deg 216deg,#f0b90b 216deg 342deg,#9ed9ef 342deg 358.2deg,#eee8d9 358.2deg)",
             transform: "rotate(" + rotation + "deg)",
           }}
         >
