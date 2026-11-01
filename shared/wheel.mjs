@@ -3,7 +3,7 @@ import { TIERS } from "./economy.mjs";
 export const WHEEL_TIERS = TIERS.map((tier, i) => ({
   ...tier,
   label: ["Partial return", "Small plus", "Bigger plus", "Top return"][i],
-  color: ["#626a6b", "#f0b90b", "#a1965c", "#fff8d7"][i],
+  color: ["#626a6b", "#f0b90b", "#9ed9ef", "#fff8d7"][i],
 }));
 
 export function wheelSvg() {
@@ -25,7 +25,7 @@ export function wheelSvg() {
     const [x, y] = point(121, middle);
     const label =
       i < 2
-        ? `<text x="${x}" y="${y}" fill="${i === 0 ? "#fffdf4" : "#121416"}" text-anchor="middle" dominant-baseline="middle" font-size="28" font-family="Lilita,Arial,sans-serif">${tier.chance / 100}%</text>`
+        ? `<text class="wheel-label" x="${x}" y="${y}" fill="${i === 0 ? "#fffdf4" : "#121416"}" text-anchor="middle" dominant-baseline="middle" font-size="28" font-family="Lilita,Arial,sans-serif">${tier.chance / 100}%</text>`
         : "";
     return `<path d="${path}" fill="${tier.color}" stroke="#eee8d9" stroke-width="1.5"/>${label}`;
   }).join("");
