@@ -7,7 +7,7 @@ The implementation has been exercised on public BNB Testnet. The following contr
 - Records: [`0x9C215A50EE8f71A18589b5C827BcA38866Cc48a2`](https://bscscan.com/address/0x9C215A50EE8f71A18589b5C827BcA38866Cc48a2).
 - Paid game: [`0xBf063Fe035F76A9bE55f1BB0C499418a8ba9ea20`](https://bscscan.com/address/0xBf063Fe035F76A9bE55f1BB0C499418a8ba9ea20).
 
-The prize bank must be funded separately before paid entries can be accepted. The mainnet payment lifecycle has not yet been exercised with real funds. Read the active deployment configuration and verify its chain before sending funds. The contracts are unaudited.
+The prize bank must be funded separately before paid entries can be accepted. A real mainnet entry has completed its VRF draw and settlement; the UI now shows its return as already claimed. Read the active deployment configuration and verify its chain before sending funds. The contracts are unaudited.
 
 Website: https://playcrumbs.xyz/. X: https://x.com/playcrumbs_bnb.
 
@@ -34,12 +34,16 @@ If no randomness request was submitted within 24 hours, the player can recover t
 
 - `shared/simulation.mjs`: deterministic game state and input replay.
 - `src/game.ts`: Phaser rendering and input integration.
+- `src/audio.ts`: gesture-started music, original synthesized effects and persistent volume controls.
+- `shared/share.mjs`, `worker/share.mjs`: verified arcade-result pages and personal PNG previews for X.
 - `src/main.ts`, `src/money.ts`: lobby, game, docs, payment and recovery UI.
 - `contracts/CrumbsRecords.sol`: EIP-712 attested score records. The score-signing service is a trust assumption; this does not control paid returns.
 - `contracts/CrumbsGame.sol`: reserved native-BNB entries, VRF draws, settlement and pull-based claims.
 - `worker/index.mjs`: replay verification, score attestation and confirmed leaderboard indexing.
 - `worker/schema.sql`: project-local D1 schema.
 - `motion/`: launch film and social artwork source.
+
+A successful verified clear can be shared on X with a prepared post and a unique result URL. Its Open Graph image contains the verified arcade score, not a BNB payout. Players can also download the PNG. No X account access or automatic posting is used. Shared snapshots contain the random run ID, score, kept crumbs and elapsed ticks; wallet addresses and run controls are not published. Snapshots remain available after the temporary replay session expires.
 
 ## Development
 
@@ -70,7 +74,7 @@ Do not publish a mainnet claim until the deployment, live configuration and publ
 
 Do not commit `.secrets`, authentication state, generated deployment progress, personal data or developer machine paths. Score-authority keys are separate from deployer keys. The Worker receives only the score authority needed for attestations; paid returns depend on VRF rather than that authority.
 
-Font licenses are included in `public/fonts/`. See dependency packages for their respective licenses. No separate project token is required for practice, entry, scoring or a BNB return. A community token does not grant payout rights.
+Font licenses are included in `public/fonts/`. The soundtrack is “Sneaky Snitch” by Kevin MacLeod (incompetech.com), licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). It was transcoded to 128 kbps for web delivery and plays quietly on a loop. The [original track](https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100772) and attribution are also linked in the game docs and `public/audio/LICENSE.txt`. Short game effects are original synthesized Web Audio cues. See dependency packages for their respective licenses. No separate project token is required for practice, entry, scoring or a BNB return. A community token does not grant payout rights.
 
 ## Dependency review
 
