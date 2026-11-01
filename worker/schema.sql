@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS sessions(id TEXT PRIMARY KEY,seed INTEGER NOT NULL,created INTEGER NOT NULL,chain_id INTEGER NOT NULL,market TEXT NOT NULL,season INTEGER NOT NULL,expires INTEGER NOT NULL,finished INTEGER NOT NULL DEFAULT 0,score INTEGER,crumbs INTEGER,steps INTEGER,replay_hash TEXT,owner TEXT,claim_signature TEXT,claim_deadline INTEGER,transaction_hash TEXT,engine INTEGER NOT NULL DEFAULT 4);
+CREATE TABLE IF NOT EXISTS records(chain_id INTEGER NOT NULL,market TEXT NOT NULL,player TEXT NOT NULL,season INTEGER NOT NULL,score INTEGER NOT NULL,transaction_hash TEXT NOT NULL,updated INTEGER NOT NULL,PRIMARY KEY(chain_id,market,player,season));
+CREATE INDEX IF NOT EXISTS records_score ON records(season,score DESC);
+CREATE TABLE IF NOT EXISTS rate_limits(key TEXT PRIMARY KEY,count INTEGER NOT NULL,expires INTEGER NOT NULL);
+
+CREATE TABLE IF NOT EXISTS metadata(key TEXT PRIMARY KEY,value TEXT NOT NULL);
