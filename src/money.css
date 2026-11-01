@@ -1,0 +1,365 @@
+.entry-page {
+  min-height: 100dvh;
+  padding: 30px 5%;
+  background: #121416 url("/vault-v1.webp") center/cover fixed;
+}
+.entry-body {
+  max-width: 1100px;
+  margin: 55px auto;
+  display: grid;
+  grid-template-columns: 1fr 450px;
+  gap: 80px;
+  align-items: center;
+}
+.entry-body h1 {
+  font-size: 70px;
+}
+.entry-body > div:first-child > p {
+  max-width: 430px;
+  font-size: 18px;
+  margin-top: 25px;
+  color: #cbc8bc;
+}
+.entry-body > div > img {
+  height: 300px;
+  margin: 30px 0 0 70px;
+}
+.entry-panel {
+  background: var(--paper);
+  color: var(--dark);
+  padding: 35px;
+  border-radius: 6px;
+  box-shadow: 7px 8px 0 #0006;
+}
+.practice-intro {
+  margin-top: 28px;
+  max-width: 430px;
+}
+.practice-intro h2 {
+  font-size: 34px;
+}
+.practice-intro p {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 10px 0 18px;
+  color: #cbc8bc;
+}
+.practice-intro button {
+  padding: 14px 28px;
+  font:
+    25px Lilita,
+    Arial,
+    sans-serif;
+}
+.entry-panel h2 {
+  font-size: 43px;
+}
+.entry-panel .network-note {
+  color: #665f4d;
+  font-size: 13px;
+  margin-top: 12px;
+}
+.entry-amount {
+  font: 40px Lilita;
+  margin: 22px 0;
+}
+.odds {
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  margin: 25px 0;
+}
+.odds > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.odds strong {
+  font: 40px Lilita;
+}
+.odds span {
+  font-size: 14px;
+}
+.entry-panel p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.entry-consent {
+  display: block;
+  font-size: 12px;
+  margin: 25px 0;
+}
+.entry-consent input {
+  accent-color: #8a6900;
+  vertical-align: middle;
+  margin-right: 8px;
+  width: 18px;
+  height: 18px;
+}
+.entry-consent a {
+  text-decoration: underline;
+}
+.entry-panel > button {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+}
+.entry-panel .small {
+  font-size: 12px;
+  margin-top: 20px;
+  overflow-wrap: anywhere;
+  color: #625b4b;
+}
+.recovery {
+  max-width: 600px;
+  margin: 60px auto;
+}
+.recovery h1 {
+  font-size: 52px;
+}
+.recovery label {
+  display: block;
+  margin: 25px 0 20px;
+  font-size: 14px;
+}
+.recovery input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  background: #fffdf7;
+  color: #121416;
+  border: 1px solid #aaa394;
+  font: 14px DM;
+}
+.wheel-page {
+  min-height: 100dvh;
+  padding: 26px 4%;
+  background: #121416 url("/game/floor.webp") center/cover fixed;
+  position: relative;
+  isolation: isolate;
+}
+.wheel-page:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #080a0bd9;
+  z-index: -1;
+}
+.wheel-panel {
+  background: var(--paper);
+  color: var(--dark);
+  width: min(600px, 100%);
+  padding: 35px 35px 25px;
+  text-align: center;
+  margin: 25px auto 0;
+  border-radius: 6px;
+  box-shadow: 8px 9px 0 #0007;
+}
+.wheel-panel h1 {
+  font-size: 49px;
+}
+.wheel-wrap {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 30px auto;
+}
+.wheel-pointer {
+  position: absolute;
+  z-index: 3;
+  left: calc(50% - 12px);
+  top: -10px;
+  width: 24px;
+  height: 27px;
+  background: #121416;
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+.return-wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 7px solid #121416;
+  background: conic-gradient(
+    #f0b90b 0deg 71deg,
+    #eee8d9 71deg 72deg,
+    #292d2e 72deg 143deg,
+    #eee8d9 143deg 144deg,
+    #292d2e 144deg 215deg,
+    #eee8d9 215deg 216deg,
+    #292d2e 216deg 287deg,
+    #eee8d9 287deg 288deg,
+    #292d2e 288deg 359deg,
+    #eee8d9 359deg
+  );
+  position: relative;
+  transition: transform 3.2s cubic-bezier(0.12, 0.72, 0.12, 1);
+}
+.return-wheel:after {
+  content: "";
+  position: absolute;
+  inset: calc(50% - 16px);
+  border-radius: 50%;
+  background: var(--paper);
+  border: 6px solid #121416;
+}
+.return-wheel span {
+  position: absolute;
+  left: calc(50% - 25px);
+  top: calc(50% - 16px);
+  width: 50px;
+  height: 32px;
+  font: 23px Lilita;
+  color: var(--paper);
+  transform: rotate(calc(var(--sector) * 72deg + 36deg)) translateY(-84px);
+}
+.return-wheel span:first-child {
+  color: #121416;
+}
+.return-amount {
+  font: 33px Lilita;
+  min-height: 45px;
+}
+.wheel-panel .small {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 10px auto 18px;
+  max-width: 440px;
+  min-height: 40px;
+}
+.wheel-panel > button {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+}
+.wheel-odds {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #615c50;
+  margin-top: 22px;
+}
+.play-id {
+  display: block;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  margin-top: 13px;
+}
+.wheel-panel .wordmark {
+  color: #121416;
+}
+@media (max-width: 800px) {
+  .entry-body {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin: 40px auto;
+    max-width: 500px;
+  }
+  .entry-body h1 {
+    font-size: 50px;
+  }
+  .entry-body > div:first-child > p {
+    font-size: 16px;
+  }
+  .entry-body > div > img {
+    display: none;
+  }
+  .entry-panel {
+    padding: 26px;
+  }
+  .entry-page {
+    padding: 25px 20px;
+  }
+  .wheel-panel {
+    padding: 27px 22px 22px;
+    margin-top: 30px;
+  }
+  .wheel-panel h1 {
+    font-size: 41px;
+  }
+  .wheel-wrap {
+    width: 235px;
+    height: 235px;
+    margin: 25px auto;
+  }
+  .return-wheel span {
+    transform: rotate(calc(var(--sector) * 72deg + 36deg)) translateY(-73px);
+  }
+  .return-amount {
+    font-size: 27px;
+  }
+  .wheel-page {
+    padding: 25px 18px;
+  }
+  .recovery h1 {
+    font-size: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .return-wheel {
+    transition: none;
+  }
+}
+
+.entry-body > div:first-child {
+  position: relative;
+  background: linear-gradient(90deg, #121416d9, #12141640);
+  padding: 25px 20px;
+  border-radius: 6px;
+}
+.entry-panel p {
+  color: #4f4b41;
+}
+.wheel-panel h1 {
+  position: relative;
+}
+.wheel-mouse {
+  width: 65px;
+  height: 85px;
+  object-fit: contain;
+  position: absolute;
+  right: -15px;
+  top: -20px;
+}
+.wheel-pointer {
+  background: var(--yellow);
+  filter: drop-shadow(0 0 2px #121416);
+}
+
+.payout-bands {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 18px 0 20px;
+}
+.payout-bands > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-size: 12px;
+}
+.payout-bands b {
+  font-weight: 700;
+}
+.return-wheel {
+  background: conic-gradient(
+    #292d2e 0deg 216deg,
+    #f0b90b 216deg 342deg,
+    #c3b46a 342deg 358.2deg,
+    #fff8d7 358.2deg 360deg
+  );
+}
+.wheel-core {
+  position: absolute;
+  left: calc(50% - 28px);
+  top: calc(50% - 28px);
+  z-index: 2;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--dark);
+  font: 20px/56px Lilita;
+}
+.entry-panel .odds span {
+  max-width: 120px;
+}
