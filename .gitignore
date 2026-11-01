@@ -1,0 +1,15 @@
+node_modules/
+.secrets/
+.wrangler/
+artifacts/
+cache/
+dist/
+.qa/
+.env*
+*.log
+deployments/*-progress.json
+
+deployments/
+wrangler.jsonc
+GitHub/
+*.dpapi

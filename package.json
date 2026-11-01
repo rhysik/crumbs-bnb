@@ -1,0 +1,45 @@
+{
+  "name": "crumbs-bnb",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4181",
+    "build": "tsc --noEmit && vite build",
+    "test": "hardhat test",
+    "test:game": "node --test --test-isolation=none checks/*.test.mjs",
+    "compile": "hardhat compile",
+    "video": "remotion render motion/index.ts CrumbsLaunch publish/post-1-video.mp4 --public-dir=motion/public --codec=h264 --crf=19 --concurrency=2"
+  },
+  "dependencies": {
+    "ethers": "6.17.0",
+    "phaser": "3.90.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "4.2.2",
+    "@playwright/test": "1.56.1",
+    "@remotion/cli": "4.0.539",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "chai": "6.3.0",
+    "hardhat": "3.21.2",
+    "prettier": "^3.6.2",
+    "remotion": "4.0.539",
+    "sharp": "0.35.5",
+    "solc": "0.8.26",
+    "typescript": "5.9.3",
+    "vite": "6.4.5",
+    "wrangler": "4.156.0",
+    "@nomicfoundation/hardhat-ethers-chai-matchers": "3.0.13",
+    "@nomicfoundation/hardhat-mocha": "4.0.1",
+    "mocha": "12.0.3"
+  },
+  "type": "module",
+  "overrides": {
+    "tmp": "0.2.7",
+    "glob": "14.0.3",
+    "minimatch": "11.0.3",
+    "zod@>=4": "4.6.7"
+  }
+}
