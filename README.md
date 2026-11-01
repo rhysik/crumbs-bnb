@@ -2,7 +2,14 @@
 
 Crumbs is a 2D mouse arcade game with optional BNB-paid draws. Practice is free. The arcade score, cosmetic characters, verified leaderboard records and paid draw are separate systems.
 
-The implementation has been exercised on public BNB Testnet. A mainnet deployment is not implied by this repository. Read the active deployment configuration and verify its chain before sending funds. The contracts are unaudited.
+The implementation has been exercised on public BNB Testnet. The following contracts were deployed on BNB Chain mainnet on 1 November 2026 and checked against the compiled source:
+
+- Records: [`0x9C215A50EE8f71A18589b5C827BcA38866Cc48a2`](https://bscscan.com/address/0x9C215A50EE8f71A18589b5C827BcA38866Cc48a2).
+- Paid game: [`0xBf063Fe035F76A9bE55f1BB0C499418a8ba9ea20`](https://bscscan.com/address/0xBf063Fe035F76A9bE55f1BB0C499418a8ba9ea20).
+
+The prize bank must be funded separately before paid entries can be accepted. The mainnet payment lifecycle has not yet been exercised with real funds. Read the active deployment configuration and verify its chain before sending funds. The contracts are unaudited.
+
+Website: https://playcrumbs.xyz/. X: https://x.com/playcrumbs_bnb.
 
 ## Rules
 
