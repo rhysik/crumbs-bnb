@@ -11,6 +11,7 @@ import {
   artifact,
   publicEndpoint,
   cf,
+  fetchRead,
 } from "./common.mjs";
 process.chdir(root);
 const stage = process.argv.includes("--mainnet") ? "mainnet" : "testnet";
@@ -98,7 +99,7 @@ wrangler(["secret", "put", "RATE_SALT"], {
   stdio: ["pipe", "inherit", "inherit"],
 });
 const endpoint = await publicEndpoint(h);
-const response = await fetch(endpoint.origin + "/api/health"),
+const response = await fetchRead(endpoint.origin + "/api/health"),
   health = await response.json();
 if (
   !response.ok ||
@@ -108,7 +109,7 @@ if (
 )
   throw Error("Published configuration did not pass verification");
 for (const route of ["/", "/app/", "/docs/", "/crumbs-card-v1.png"]) {
-  const r = await fetch(endpoint.origin + route);
+  const r = await fetchRead(endpoint.origin + route);
   if (!r.ok) throw Error("Publication page failed: " + route);
 }
 write("deployments/publication.json", {

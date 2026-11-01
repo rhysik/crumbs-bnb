@@ -64,6 +64,28 @@ export function unprotect(value) {
     throw Error("Windows key protection cannot be opened for this user");
   return r.stdout.trim();
 }
+export async function fetchRead(url, options = {}) {
+  if (options.method && options.method.toUpperCase() !== "GET")
+    throw Error("Read retries only support GET requests");
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        method: "GET",
+        signal: options.signal || AbortSignal.timeout(12000),
+      });
+      if (
+        (response.status !== 429 && response.status < 500) ||
+        attempt === 2
+      )
+        return response;
+      await response.body?.cancel();
+    } catch (error) {
+      if (attempt === 2 || options.signal?.aborted) throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+  }
+}
 export async function cf(route, method = "GET", body, refreshed = false) {
   const file = path.join(
     process.env.APPDATA,
@@ -73,7 +95,8 @@ export async function cf(route, method = "GET", body, refreshed = false) {
     .readFileSync(file, "utf8")
     .match(/oauth_token\s*=\s*"([^"]+)"/);
   if (!match) throw Error("Cloudflare login is unavailable");
-  const r = await fetch("https://api.cloudflare.com/client/v4" + route, {
+  const request = method === "GET" ? fetchRead : fetch;
+  const r = await request("https://api.cloudflare.com/client/v4" + route, {
     method,
     headers: {
       Authorization: "Bearer " + match[1],
